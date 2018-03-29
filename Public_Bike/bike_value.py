@@ -14,37 +14,6 @@ from xgboost import plot_importance
 from sklearn.model_selection import GridSearchCV
 
 
-def deal_train(trainFilePath):
-    # num_list = data['weather'].value_counts().tolist()
-    # sunny_num = data[data['weather'] == 1]['y'].sum()
-    # cloudy_num = data[data['weather'] == 2]['y'].sum()
-    # slight_rain = data[data['weather'] == 3]['y'].sum()
-    # strong_rain = data[data['weather'] == 4]['y'].sum()
-    # print(sunny_num / num_list[0], cloudy_num / num_list[1], slight_rain / num_list[2], strong_rain / num_list[3])
-    # data = pd.read_csv(trainFilePath)
-    # print(data['wind'].value_counts())
-    # num_list = data['wind'].value_counts().tolist()
-    # print(num_list)
-    # for i in range(0, len(num_list)):
-    #     wind_sum = data[data['wind'] == i]['y'].sum()
-    #     print(wind_sum)
-    # print(data['wind'].value_counts())
-    # plt.scatter(data['wind'], data['y'])
-    # plt.show()
-    df = pd.read_csv(trainFilePath)
-    data = df.copy(deep=True)
-
-    # 离散型特征映射
-    mapper = {'weather': {1: 4, 2: 3, 3: 2, 4: 1}}
-
-    # 映射转换
-    for col, mapItem in mapper.items():
-        data.loc[:, col] = data[col].map(mapItem)
-
-    data.to_csv('data/dealed_trainInput.csv', index=False)
-    print(data.shape[0], data.shape[1])
-
-
 # 加载训练集
 def load_trainData(trainFilePath):
     data = pd.read_csv(trainFilePath)
@@ -84,7 +53,7 @@ def model_process(X_train, y_train, X_test):
     # model = xgb.XGBRegressor(learning_rate=0.1, n_estimators=300, max_depth=5, min_child_weight=6, seed=0,
     #                          subsample=0.8, colsample_bytree=0.9, gamma=0.7, reg_alpha=3, reg_lambda=4,
     #                          metrics='rmse')
-    # model.fit(X_train, y_train)
+    model.fit(X_train, y_train)
 
     # 对测试集进行预测
     ans = model.predict(X_test)
@@ -116,13 +85,12 @@ def ceate_feature_map(features):
 
 
 if __name__ == '__main__':
-    deal_train('data/train.csv')
     # 训练模型
     # 加载测试集，训练集
-    # X_train, Y_train = load_trainData('data/train.csv')
-    # X_test = load_testData('data/test.csv')
-    # # 运行模型得到最终的submit.csv文件
-    # model_process(X_train, Y_train, X_test)
+    X_train, Y_train = load_trainData('data/train.csv')
+    X_test = load_testData('data/test.csv')
+    # 运行模型得到最终的submit.csv文件
+    model_process(X_train, Y_train, X_test)
     # ==============================================================================================================
     # 加载测试集，训练集
 
