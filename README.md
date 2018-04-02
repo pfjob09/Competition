@@ -7,3 +7,5 @@
 - Public_Bike：公共自行车使用量预测，赛题地址：[公共自行车使用量预测](http://sofasofa.io/competition.php?id=1#c4)
 
 - SquareOrCircle：形状识别：是方还是圆，赛题地址：[形状识别：是方还是圆](http://sofasofa.io/competition.php?id=6)
+
+- AskandQuestion：问答网站问题、回答数量预测，赛题地址：[问答网站问题、回答数量预测](http://sofasofa.io/competition.php?id=4)
