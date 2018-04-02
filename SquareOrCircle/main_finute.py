@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @File  : main.py
+# @File  : main_finute.py
 # @Author: Huangqinjian
 # @Date  : 2018/3/31
 # @Desc  :
@@ -103,28 +103,28 @@ with tf.name_scope('input_image'):
     tf.summary.image('input_image', x_image, 30)
 
 ## conv1 layer ##
-W_conv1 = weight_variable([3, 3, 1, 64])  # patch 3x3, in size 1, out size 32
+W_conv1 = weight_variable([3, 3, 1, 64])  # patch 3x3, in size 1, out size 64
 b_conv1 = bias_variable([64])
-h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)  # out 40x40x32
+h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)  # out 40x40x64
 print('第一层卷积层大小为：{0}'.format(h_conv1.shape))
 h_pool1 = max_pool_2x2(h_conv1)
-print('第一层池化层层大小为：{0}'.format(h_pool1.shape))  # out 20x20x32
+print('第一层池化层层大小为：{0}'.format(h_pool1.shape))  # out 20x20x64
 
 ## conv2 layer ##
-W_conv2 = weight_variable([3, 3, 64, 128])  # patch 3x3, in size 32, out size 64
+W_conv2 = weight_variable([3, 3, 64, 128])  # patch 3x3, in size 64, out size 128
 b_conv2 = bias_variable([128])
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
-print('第二层卷积层大小为：{0}'.format(h_conv2.shape))  # out 20x20x64
+print('第二层卷积层大小为：{0}'.format(h_conv2.shape))  # out 20x20x128
 h_pool2 = max_pool_2x2(h_conv2)
-print('第二层池化层大小为：{0}'.format(h_pool2.shape))  # out 10x10x64
+print('第二层池化层大小为：{0}'.format(h_pool2.shape))  # out 10x10x128
 
 ## conv3 layer ##
-W_conv3 = weight_variable([3, 3, 128, 256])  # patch 3x3, in size 64, out size 128
+W_conv3 = weight_variable([3, 3, 128, 256])  # patch 3x3, in size 128, out size 256
 b_conv3 = bias_variable([256])
 h_conv3 = tf.nn.relu(conv2d(h_pool2, W_conv3) + b_conv3)
-print('第三层卷积层大小为：{0}'.format(h_conv3.shape))  # out 10x10x128
+print('第三层卷积层大小为：{0}'.format(h_conv3.shape))  # out 10x10x256
 h_pool3 = max_pool_2x2(h_conv3)
-print('第三层池化层大小为：{0}'.format(h_pool3.shape))  # out 5x5x128
+print('第三层池化层大小为：{0}'.format(h_pool3.shape))  # out 5x5x256
 
 ## full_connect layer 全连接层 ##
 W_fc1 = weight_variable([5 * 5 * 256, 1024])
@@ -152,7 +152,7 @@ with tf.name_scope('loss'):
 # tf.clip_by_value(t, clip_value_min, clip_value_max, name=None)
 # 基于定义的min与max对tesor数据进行截断操作，目的是为了应对梯度爆发或者梯度消失的情况。这样通过tf.clip_by_value（）函数就可以保证在进行log运算时，不会出现log0这样的错误或者大于1的概率。
 
-train_step = tf.train.AdamOptimizer(learning_rate=0.0001, epsilon=1).minimize(cross_entropy)
+train_step = tf.train.AdamOptimizer(learning_rate=0.001, epsilon=1).minimize(cross_entropy)
 # =====================================================================================================================
 # session初始化
 sess = tf.Session()
@@ -173,9 +173,10 @@ for i in range(0, 40):
     for j in range(0, 100):
         X_train_batch.append(X_train[100 * i + j])
         Y_train_batch.append(Y_train[100 * i + j])
+    # sess.run(train_step, feed_dict={xs: X_train, ys: Y_train, keep_prob: 0.5})
     # summary, train_step_value分别对应merged_summary, train_step两个执行后的返回值
     summary, train_step_value = sess.run([merged_summary, train_step],
-                                         feed_dict={xs: X_train, ys: Y_train, keep_prob: 0.5})
+                                         feed_dict={xs: X_train_batch, ys: Y_train_batch, keep_prob: 0.5})
     summary_writer.add_summary(summary, i)
 # =====================================================================================================================
 # for i in range(0, 64):
