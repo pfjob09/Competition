@@ -8,9 +8,8 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 import matplotlib.pyplot as plt
-from xgboost import plot_tree
 from pandas import DataFrame
-from xgboost import plot_importance
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import GridSearchCV
 
 
@@ -74,10 +73,11 @@ def load_testData(testFilePath):
 
 
 def model_process(X_train, y_train, X_test):
-    # XGBoost训练过程
-    model = xgb.XGBRegressor(learning_rate=0.1, n_estimators=200, max_depth=6, min_child_weight=24, seed=0,
-                             subsample=0.8, colsample_bytree=0.8, gamma=0.1, reg_alpha=0.05, reg_lambda=1,
-                             metrics='rmse')
+    # GBDT训练过程
+
+    model = GradientBoostingRegressor(loss='ls', learning_rate=0.05, n_estimators=400, subsample=0.8,
+                                      min_samples_split=3,
+                                      min_samples_leaf=6, max_depth=5, warm_start=True)
 
     model.fit(X_train, y_train)
     # 对测试集进行预测
@@ -95,17 +95,46 @@ def model_process(X_train, y_train, X_test):
     # print(pd_data)
     pd_data.to_csv('submit.csv', index=None)
 
-    # 显示重要特征
-    # plot_importance(model)
-    # plt.show()
-
 
 if __name__ == '__main__':
     # deal_train('data/train.csv')
     # deal_test('data/test.csv')
-    # 训练模型
     # 加载测试集，训练集
     X_train, Y_train = load_trainData('data/dealed_trainInput.csv')
     X_test = load_testData('data/dealed_testInput.csv')
-    # 运行模型得到最终的submit.csv文件
     model_process(X_train, Y_train, X_test)
+    # ====================================================================================================================
+    # GBDT调试参数
+    # cv_params = {'n_estimators': [100, 200, 300, 400, 500]}
+    # other_params = {'loss': 'ls', 'learning_rate': 0.1, 'n_estimators': 100, 'subsample': 0.8,
+    #                 'min_samples_split': 2,
+    #                 'min_samples_leaf': 1, 'max_depth': 5, 'warm_start': True}
+
+    # cv_params = {'max_depth': [4, 5, 6, 7, 8]}
+    # other_params = {'loss': 'ls', 'learning_rate': 0.1, 'n_estimators': 200, 'subsample': 0.8,
+    #                 'min_samples_split': 2,
+    #                 'min_samples_leaf': 1, 'max_depth': 5, 'warm_start': True}
+
+    # cv_params = {'subsample': [0.9, 0.95]}
+    # other_params = {'loss': 'ls', 'learning_rate': 0.1, 'n_estimators': 200, 'subsample': 0.8,
+    #                 'min_samples_split': 2,
+    #                 'min_samples_leaf': 1, 'max_depth': 5, 'warm_start': True}
+
+    # cv_params = {'min_samples_split': [2, 3, 4, 5, 6], 'min_samples_leaf': [2, 3, 4, 5, 6]}
+    # other_params = {'loss': 'ls', 'learning_rate': 0.1, 'n_estimators': 200, 'subsample': 0.9,
+    #                 'min_samples_split': 2,
+    #                 'min_samples_leaf': 1, 'max_depth': 5, 'warm_start': True}
+
+    # cv_params = {'learning_rate': [0.01, 0.05, 0.1], 'n_estimators': [100, 200, 300, 400, 500]}
+    # other_params = {'loss': 'ls', 'learning_rate': 0.05, 'n_estimators': 400, 'subsample': 0.8,
+    #                 'min_samples_split': 3,
+    #                 'min_samples_leaf': 6, 'max_depth': 5, 'warm_start': True}
+    #
+    # model = GradientBoostingRegressor(**other_params)
+    # optimized_GBM = GridSearchCV(estimator=model, param_grid=cv_params, scoring='neg_mean_squared_error', cv=5,
+    #                              verbose=1, n_jobs=4)
+    # optimized_GBM.fit(X_train, Y_train)
+    # evalute_result = optimized_GBM.grid_scores_
+    # print('每轮迭代运行结果:{0}'.format(evalute_result))
+    # print('参数的最佳取值：{0}'.format(optimized_GBM.best_params_))
+    # print('最佳模型得分:{0}'.format(optimized_GBM.best_score_))
