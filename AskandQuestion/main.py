@@ -48,7 +48,7 @@ a_diff = train['answers'] - a_fit
 # 把训练误差作为新的目标值，使用特征cols_knn，建立kNN模型
 from sklearn.neighbors import KNeighborsRegressor
 
-# 0.0304    n_neighbors=4    0.0317
+# 0.0304    n_neighbors=5    0.0317
 reg = KNeighborsRegressor(n_neighbors=4)
 reg.fit(train[cols_knn], q_diff)
 q_pred_knn = reg.predict(test[cols_knn])
