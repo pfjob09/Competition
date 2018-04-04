@@ -62,7 +62,12 @@ def model_process(X_train, y_train, X_test):
     predict = []
     temp = 0
     for i in range(0, predict_len):
-        temp = 0.6 * predict_gbdt[i] + 0.4 * predict_xgb[i]
+        # score:14.879
+        # temp = 0.6 * predict_gbdt[i] + 0.4 * predict_xgb[i]
+        # 14.892
+        # temp = 0.7 * predict_gbdt[i] + 0.3 * predict_xgb[i]
+        # 14.878
+        temp = 0.65 * predict_gbdt[i] + 0.35 * predict_xgb[i]
         predict.append(temp)
 
     id_list = np.arange(10001, 17001)
