@@ -10,6 +10,8 @@
 
 - AskandQuestion：问答网站问题、回答数量预测，赛题地址：[问答网站问题、回答数量预测](http://sofasofa.io/competition.php?id=4)
 
+- SexJudgeByName：机器读中文：根据名字判断性别，赛题地址：[机器读中文：根据名字判断性别](http://sofasofa.io/competition.php?id=3)
+
 ----------
 
 ### 一点比赛小经验：
