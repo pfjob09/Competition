@@ -1,6 +1,8 @@
-﻿import numpy as np
+import numpy as np
 import pandas as pd
+import time
 import xgboost as xgb
+from sklearn.model_selection import GridSearchCV
 
 path_train = "/data/dm/train.csv"  # 训练文件
 path_test = "/data/dm/test.csv"  # 测试文件
@@ -30,6 +32,19 @@ def height_map(hegiht):
         return 4
 
 
+def speed_height(speed, height):
+    if height <= 451:
+        return 1
+    elif height > 451 and height <= 1570 and speed > 15:
+        return 2
+    elif height > 451 and height <= 1570 and speed > 31.5:
+        return 3
+    elif height > 1570 and speed > 31.5:
+        return 4
+    else:
+        return 5
+
+
 def longtitude_map(longti):
     if (longti >= 118) and (longti <= 123):
         return 1
@@ -55,6 +70,31 @@ def direction_map(direction):
         return 5
 
 
+def speed_direction(speed, direction):
+    if direction < 180 and speed < 31.5:
+        return 1
+    elif direction < 180 and speed > 31.5:
+        return 2
+    elif direction > 180 and direction < 360 and speed < 31.5:
+        return 3
+    elif direction > 180 and direction < 360 and speed > 31.5:
+        return 4
+    else:
+        return 5
+
+
+def time_convert(timestamp, type):
+    #转换成localtime
+    time_local = time.localtime(timestamp)
+    if type == 'hour':
+        #转换成新的时间格式(2016-05-05 20:28:54)
+        # dt = time.strftime("%Y-%m-%d %H:%M:%S", time_local)
+        dt = time.strftime("%H", time_local)
+    else:
+        dt = time.strftime("%w", time_local)
+    return dt
+
+
 # 加载训练集
 def load_trainData(trainFilePath):
     df = pd.read_csv(trainFilePath)
@@ -63,7 +103,21 @@ def load_trainData(trainFilePath):
     data['SPEED'] = data['SPEED'].apply(speed_map)
     data['HEIGHT'] = data['HEIGHT'].apply(height_map)
     data['LONGITUDE'] = data['LONGITUDE'].apply(longtitude_map)
-    data.drop(['TERMINALNO', 'TIME', 'TRIP_ID', 'Y'], axis=1, inplace=True)
+    data['SPEED_HEIGHT'] = data.apply(
+        lambda col: speed_height(col['SPEED'], col['HEIGHT']), axis=1)
+    data['SPEED_DIRECTION'] = data.apply(
+        lambda col: speed_direction(col['SPEED'], col['DIRECTION']), axis=1)
+    data['Hour'] = data['TIME'].apply(lambda x: time_convert(x, 'hour'))
+    data['Week'] = data['TIME'].apply(lambda x: time_convert(x, 'week'))
+    data[['Hour', 'Week']] = data[['Hour', 'Week']].apply(pd.to_numeric)
+    data['isNight'] = data['Hour'].apply(
+        lambda x: 0 if (x > 5 and x < 19) else 1)
+    data['isWeekend'] = data['Week'].apply(
+        lambda x: 0 if (x > 0 and x < 6) else 1)
+    data.drop(
+        ['TERMINALNO', 'TIME', 'TRIP_ID', 'Hour', 'Week', 'Y'],
+        axis=1,
+        inplace=True)
     return data, df['Y']
 
 
@@ -75,15 +129,69 @@ def load_testData(testFilePath):
     data['SPEED'] = data['SPEED'].apply(speed_map)
     data['HEIGHT'] = data['HEIGHT'].apply(height_map)
     data['LONGITUDE'] = data['LONGITUDE'].apply(longtitude_map)
-    data.drop(['TERMINALNO', 'TIME', 'TRIP_ID'], axis=1, inplace=True)
+    data['SPEED_HEIGHT'] = data.apply(
+        lambda col: speed_height(col['SPEED'], col['HEIGHT']), axis=1)
+    data['SPEED_DIRECTION'] = data.apply(
+        lambda col: speed_direction(col['SPEED'], col['DIRECTION']), axis=1)
+    data['Hour'] = data['TIME'].apply(lambda x: time_convert(x, 'hour'))
+    data['Week'] = data['TIME'].apply(lambda x: time_convert(x, 'week'))
+    data[['Hour', 'Week']] = data[['Hour', 'Week']].apply(pd.to_numeric)
+    data['isNight'] = data['Hour'].apply(
+        lambda x: 0 if (x > 5 and x < 19) else 1)
+    data['isWeekend'] = data['Week'].apply(
+        lambda x: 0 if (x > 0 and x < 6) else 1)
+    data.drop(
+        ['TERMINALNO', 'TIME', 'TRIP_ID', 'Hour', 'Week'],
+        axis=1,
+        inplace=True)
     return data, df['TERMINALNO']
+
+
+def xgb_cv(X_train, Y_train):
+    cv_params = {
+        # 'n_estimators': range(1350, 2200, 50),
+        # 'max_depth': range(4, 9, 1),
+        # 'min_child_weight': range(4, 9, 1),
+        # 'subsample': [0.5, 0.6, 0.7, 0.8, 0.9],
+        # 'colsample_bytree': [0.1, 0.2, 0.3, 0.4],
+        # 'gamma': [0.2, 0.3, 0.4, 0.5, 0.6],
+        # 'reg_alpha': [2, 3, 4, 5, 6],
+        # 'reg_lambda': [2, 3, 4, 5, 6, 7],
+        # 'learning_rate': [0.001, 0.005, 0.01, 0.05, 0.1]
+    }
+    model = xgb.XGBRegressor(
+        learning_rate=0.001,
+        n_estimators=1500,
+        max_depth=6,
+        min_child_weight=5,
+        seed=0,
+        subsample=0.8,
+        colsample_bytree=0.3,
+        gamma=0.1,
+        reg_alpha=3,
+        reg_lambda=1,
+        metrics='auc')
+
+    optimized_GBM = GridSearchCV(
+        estimator=model,
+        param_grid=cv_params,
+        scoring='neg_mean_absolute_error',
+        cv=5,
+        verbose=1,
+        n_jobs=4)
+
+    optimized_GBM.fit(X_train, Y_train)
+    # evalute_result = optimized_GBM.grid_scores_
+    # print('每轮迭代运行结果:{0}'.format(evalute_result))
+    print('参数的最佳取值：{0}'.format(optimized_GBM.best_params_))
+    # print('最佳模型得分:{0}'.format(optimized_GBM.best_score_))
 
 
 def model_process(X_train, y_train, X_test, IdList):
     model = xgb.XGBRegressor(
         learning_rate=0.001,
-        n_estimators=850,
-        max_depth=9,
+        n_estimators=1800,
+        max_depth=6,
         min_child_weight=5,
         seed=0,
         subsample=0.8,
@@ -128,3 +236,4 @@ if __name__ == "__main__":
     X_train, Y_train = load_trainData(path_train)
     X_test, IdList = load_testData(path_test)
     model_process(X_train, Y_train, X_test, IdList)
+    # xgb_cv(X_train, Y_train)
