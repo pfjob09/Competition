@@ -4,13 +4,17 @@
 以及[XGboost数据比赛实战之调参篇(完整流程)](https://blog.csdn.net/sinat_35512245/article/details/79700029)
 
 
-- Public_Bike：公共自行车使用量预测，赛题地址：[公共自行车使用量预测](http://sofasofa.io/competition.php?id=1#c4)
+- Public_Bike：公共自行车使用量预测，赛题地址：[公共自行车使用量预测](http://sofasofa.io/competition.php?id=1)
 
 - SquareOrCircle：形状识别：是方还是圆，赛题地址：[形状识别：是方还是圆](http://sofasofa.io/competition.php?id=6)
 
 - AskandQuestion：问答网站问题、回答数量预测，赛题地址：[问答网站问题、回答数量预测](http://sofasofa.io/competition.php?id=4)
 
 - SexJudgeByName：机器读中文：根据名字判断性别，赛题地址：[机器读中文：根据名字判断性别](http://sofasofa.io/competition.php?id=3)
+
+- Accident：交通事故理赔审核，赛题地址：[交通事故理赔审核](http://sofasofa.io/competition.php?id=2)
+
+- DF_RiskPrediction：2018平安产险数据建模大赛 驾驶行为预测驾驶风险，赛题地址：[2018平安产险数据建模大赛 驾驶行为预测驾驶风险](http://www.datafountain.cn/projects/pingan/)
 
 ----------
 
