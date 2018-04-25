@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from sklearn.tree import DecisionTreeClassifier
 import xgboost as xgb
 from sklearn.model_selection import GridSearchCV
 from gensim.models import Word2Vec
@@ -52,15 +51,7 @@ submit['y'] = clf.predict_proba(vecs[n_train:])[:, 1]
 submit.to_csv('my_prediction.csv', index=False)
 
 
-
 def model_cv(X_train, Y_train):
-    # cv_params = {
-    #     'max_depth': range(1, 7, 1),
-    #     # 'min_samples_split': range(4, 9, 1),
-    #     # 'min_samples_leaf ': [0.5, 0.6, 0.7, 0.8, 0.9],
-    # }
-    # model = DecisionTreeClassifier(max_depth=5, random_state=100)
-
     cv_params = {
         'n_estimators': range(1000, 1050, 25),
         # 'max_depth': range(3, 8, 1),
@@ -95,11 +86,11 @@ def model_cv(X_train, Y_train):
         n_jobs=4)
 
     optimized_GBM.fit(X_train, Y_train)
-    # evalute_result = optimized_GBM.grid_scores_
-    # print('每轮迭代运行结果:{0}'.format(evalute_result))
+    evalute_result = optimized_GBM.grid_scores_
+    print('每轮迭代运行结果:{0}'.format(evalute_result))
     print('参数的最佳取值：{0}'.format(optimized_GBM.best_params_))
     print('最佳模型得分:{0}'.format(optimized_GBM.best_score_))
 
 
-# if __name__ == "__main__":
-#     model_cv(vecs[:n_train], train['y'])
+if __name__ == "__main__":
+    model_cv(vecs[:n_train], train['y'])
