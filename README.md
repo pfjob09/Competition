@@ -16,6 +16,8 @@
 
 - DF_RiskPrediction：2018平安产险数据建模大赛 驾驶行为预测驾驶风险，赛题地址：[2018平安产险数据建模大赛 驾驶行为预测驾驶风险](http://www.datafountain.cn/projects/pingan/)
 
+- GuWen_WordVec：机器读中文2：“辨古识今”，赛题地址：[机器读中文2：“辨古识今”](http://sofasofa.io/competition.php?id=5)
+
 ----------
 
 ### 一点比赛小经验：
